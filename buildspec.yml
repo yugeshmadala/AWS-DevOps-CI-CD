@@ -12,25 +12,29 @@ phases:
 
   pre_build:
     commands:
-      - echo "Installing Python dependencies..."
+      - echo "Installing dependencies..."
       - pip install -r requirements.txt
+
+      - echo "Testing Docker login..."
+      # Enable debug mode so we see full error output
+      - set -x
+      - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin 2>&1 || echo "LOGIN FAILED"
+      - docker info 2>&1 || echo "DOCKER INFO FAILED"
+      - set +x
 
   build:
     commands:
-      - echo "Logging in to Docker Hub..."
-      - echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
       - echo "Building Docker image..."
       - IMAGE_NAME="$DOCKERHUB_USERNAME/simple-python-flask-app:latest"
       - docker build -t "$IMAGE_NAME" .
-      - echo "Pushing Docker image to Docker Hub..."
-      - docker push "$IMAGE_NAME"
+      - echo "Pushing Docker image..."
+      - docker push "$IMAGE_NAME" || echo "DOCKER PUSH FAILED"
 
   post_build:
     commands:
-      - echo "Build completed successfully!"
+      - echo "Build completed (check above for login/push errors)."
 
 artifacts:
   files:
     - '**/*'
-  base-directory: .
 
