@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.log
+venv/
+.git/
+.gitignore
+buildspec.yml
+README.md
